@@ -1,26 +1,26 @@
 #!/bin/bash
 set -x
 
-IPATH=/usr/local/share/adsbexchange
+IPATH=/usr/local/share/radarplane
 
-systemctl disable --now adsbexchange-mlat
-systemctl disable --now adsbexchange-mlat2 &>/dev/null
-systemctl disable --now adsbexchange-feed
+systemctl disable --now radarplane-mlat
+systemctl disable --now radarplane-mlat2 &>/dev/null
+systemctl disable --now radarplane-feed
 
-if [[ -d /usr/local/share/tar1090/html-adsbx ]]; then
-    bash /usr/local/share/tar1090/uninstall.sh adsbx
+if [[ -d /usr/local/share/tar1090/html-rp ]]; then
+    bash /usr/local/share/tar1090/uninstall.sh rp
 fi
 
-rm -f /lib/systemd/system/adsbexchange-mlat.service
-rm -f /lib/systemd/system/adsbexchange-mlat2.service
-rm -f /lib/systemd/system/adsbexchange-feed.service
+rm -f /lib/systemd/system/radarplane-mlat.service
+rm -f /lib/systemd/system/radarplane-mlat2.service
+rm -f /lib/systemd/system/radarplane-feed.service
 
-cp -f "$IPATH/adsbx-uuid" /tmp/adsbx-uuid
+cp -f "$IPATH/rp-uuid" /tmp/rp-uuid
 rm -rf "$IPATH"
 mkdir -p "$IPATH"
-mv -f /tmp/adsbx-uuid "$IPATH/adsbx-uuid"
+mv -f /tmp/rp-uuid "$IPATH/rp-uuid"
 
 set +x
 
 echo -----
-echo "adsbexchange feed scripts have been uninstalled!"
+echo "radarplane feed scripts have been uninstalled!"

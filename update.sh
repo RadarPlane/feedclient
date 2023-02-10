@@ -42,13 +42,6 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-if [ -f /boot/adsb-config.txt ]; then
-    echo --------
-    echo "You are using the adsbx image, the feed setup script does not need to be installed."
-    echo --------
-    exit 1
-fi
-
 function aptInstall() {
     if ! apt install -y --no-install-recommends --no-install-suggests "$@"; then
         apt update
@@ -95,10 +88,10 @@ function getGIT() {
     rm -rf "$tmp" "$tmp.folder"; return 1
 }
 
-REPO="https://github.com/adsbexchange/feedclient.git"
+REPO="https://github.com/radarplane/feedclient.git"
 BRANCH="master"
 
-IPATH=/usr/local/share/adsbexchange
+IPATH=/usr/local/share/radarplane
 GIT="$IPATH/git"
 mkdir -p $IPATH
 
@@ -107,8 +100,8 @@ rm -f $LOGFILE
 touch $LOGFILE
 
 if [[ "$1" == "test" ]]; then
-    cp -T -a ./ /tmp/ax_test
-    GIT=/tmp/ax_test
+    cp -T -a ./ /tmp/rp_test
+    GIT=/tmp/rp_test
 else
     getGIT "$REPO" "$BRANCH" "$GIT" >> $LOGFILE
 fi
@@ -121,20 +114,15 @@ if diff "$GIT/update.sh" "$IPATH/update.sh" &>/dev/null; then
     exit $?
 fi
 
-if [ -f /boot/adsb-config.txt ]; then
-    source /boot/adsb-config.txt
-    source /boot/adsbx-env
-else
-    source /etc/default/adsbexchange
-    if ! grep -qs -e UAT_INPUT /etc/default/adsbexchange; then
-        cat >> /etc/default/adsbexchange <<"EOF"
+source /etc/default/radarplane
+    if ! grep -qs -e UAT_INPUT /etc/default/radarplane; then
+        cat >> /etc/default/radarplane <<"EOF"
 
 # this is the source for 978 data, use port 30978 from dump978 --raw-port
 # if you're not receiving 978, don't worry about it, not doing any harm!
 UAT_INPUT="127.0.0.1:30978"
 EOF
     fi
-fi
 if [[ -z $INPUT ]] || [[ -z $INPUT_TYPE ]] || [[ -z $USER ]] \
     || [[ -z $LATITUDE ]] || [[ -z $LONGITUDE ]] || [[ -z $ALTITUDE ]] \
     || [[ -z $MLATSERVER ]] || [[ -z $TARGET ]] || [[ -z $NET_OPTIONS ]]; then
@@ -150,12 +138,12 @@ else
 fi
 
 # remove previously used folder to avoid confusion
-rm -rf /usr/local/share/adsb-exchange &>/dev/null
+#rm -rf /usr/local/share/adsb-exchange &>/dev/null
 
 cp "$GIT/uninstall.sh" "$IPATH"
 cp "$GIT"/scripts/*.sh "$IPATH"
 
-UNAME=adsbexchange
+UNAME=radarplane
 if ! id -u "${UNAME}" &>/dev/null
 then
     # 2nd syntax is for fedora / centos
@@ -182,16 +170,16 @@ echo
 bash "$IPATH/git/create-uuid.sh"
 
 VENV=$IPATH/venv
-if [[ -f /usr/local/share/adsbexchange/venv/bin/python3.7 ]] && command -v python3.9 &>/dev/null;
+if [[ -f /usr/local/share/radarplane/venv/bin/python3.7 ]] && command -v python3.9 &>/dev/null;
 then
     rm -rf "$VENV"
 fi
 
-MLAT_REPO="https://github.com/adsbxchange/mlat-client.git"
+MLAT_REPO="https://github.com/adsbxchange/mlat-client.git" # TODO?
 MLAT_BRANCH="master"
 MLAT_VERSION="$(git ls-remote $MLAT_REPO $MLAT_BRANCH | cut -f1 || echo $RANDOM-$RANDOM )"
 if [[ $REINSTALL != yes ]] && grep -e "$MLAT_VERSION" -qs $IPATH/mlat_version \
-    && grep -qs -e '#!' "$VENV/bin/mlat-client" && { systemctl is-active adsbexchange-mlat &>/dev/null || [[ "${MLAT_DISABLED}" == "1" ]]; }
+    && grep -qs -e '#!' "$VENV/bin/mlat-client" && { systemctl is-active radarplane-mlat &>/dev/null || [[ "${MLAT_DISABLED}" == "1" ]]; }
 then
     echo
     echo "mlat-client already installed, git hash:"
@@ -232,7 +220,7 @@ else
         echo "--------------------"
         echo "Installing mlat-client failed, if there was an old version it has been restored."
         echo "Will continue installation to try and get at least the feed client working."
-        echo "Please repot this error to the adsbexchange forums or discord."
+        echo "Please repot this error to the radarplane forums or discord."
         echo "--------------------"
     fi
 fi
@@ -240,25 +228,25 @@ fi
 echo 50
 
 # copy adsbexchange-mlat service file
-cp "$GIT"/scripts/adsbexchange-mlat.service /lib/systemd/system
+cp "$GIT"/scripts/radarplane-mlat.service /lib/systemd/system
 
 echo 60
 
-if ls -l /etc/systemd/system/adsbexchange-mlat.service 2>&1 | grep '/dev/null' &>/dev/null; then
+if ls -l /etc/systemd/system/radarplane-mlat.service 2>&1 | grep '/dev/null' &>/dev/null; then
     echo "--------------------"
-    echo "CAUTION, adsbexchange-mlat is masked and won't run!"
+    echo "CAUTION, radarplane-mlat is masked and won't run!"
     echo "If this is unexpected for you, please report this issue"
     echo "--------------------"
     sleep 3
 else
     if [[ "${MLAT_DISABLED}" == "1" ]]; then
-        systemctl disable adsbexchange-mlat || true
-        systemctl stop adsbexchange-mlat || true
+        systemctl disable radarplane-mlat || true
+        systemctl stop radarplane-mlat || true
     else
         # Enable adsbexchange-mlat service
-        systemctl enable adsbexchange-mlat >> $LOGFILE || true
+        systemctl enable radarplane-mlat >> $LOGFILE || true
         # Start or restart adsbexchange-mlat service
-        systemctl restart adsbexchange-mlat || true
+        systemctl restart radarplane-mlat || true
     fi
 fi
 
@@ -273,9 +261,9 @@ if grep -E 'wheezy|jessie' /etc/os-release -qs; then
 fi
 READSB_VERSION="$(git ls-remote $READSB_REPO $READSB_BRANCH | cut -f1 || echo $RANDOM-$RANDOM )"
 READSB_GIT="$IPATH/readsb-git"
-READSB_BIN="$IPATH/feed-adsbx"
+READSB_BIN="$IPATH/feed-rp"
 if [[ $REINSTALL != yes ]] && grep -e "$READSB_VERSION" -qs $IPATH/readsb_version \
-    && "$READSB_BIN" -V && systemctl is-active adsbexchange-feed &>/dev/null
+    && "$READSB_BIN" -V && systemctl is-active radarplane-feed &>/dev/null
 then
     echo
     echo "Feed client already installed, git hash:"
@@ -308,19 +296,19 @@ fi
 
 #end compile readsb
 
-cp "$GIT"/scripts/adsbexchange-feed.service /lib/systemd/system
+cp "$GIT"/scripts/radarplane-feed.service /lib/systemd/system
 
 echo 82
 
-if ! ls -l /etc/systemd/system/adsbexchange-feed.service 2>&1 | grep '/dev/null' &>/dev/null; then
-    # Enable adsbexchange-feed service
-    systemctl enable adsbexchange-feed >> $LOGFILE || true
+if ! ls -l /etc/systemd/system/radarplane-feed.service 2>&1 | grep '/dev/null' &>/dev/null; then
+    # Enable radarplane-feed service
+    systemctl enable radarplane-feed >> $LOGFILE || true
     echo 92
-    # Start or restart adsbexchange-feed service
-    systemctl restart adsbexchange-feed || true
+    # Start or restart radarplane-feed service
+    systemctl restart radarplane-feed || true
 else
     echo "--------------------"
-    echo "CAUTION, adsbexchange-feed.service is masked and won't run!"
+    echo "CAUTION, radarplane-feed.service is masked and won't run!"
     echo "If this is unexpected for you, please report this issue"
     echo "--------------------"
     sleep 3
@@ -328,32 +316,32 @@ fi
 
 echo 94
 
-systemctl is-active adsbexchange-feed &>/dev/null || {
+systemctl is-active radarplane-feed &>/dev/null || {
     rm -f $IPATH/readsb_version
     echo "---------------------------------"
-    journalctl -u adsbexchange-feed | tail -n10
+    journalctl -u radarplane-feed | tail -n10
     echo "---------------------------------"
-    echo "adsbexchange-feed service couldn't be started, please report this error to the adsbexchange forum or discord."
+    echo "radarplane-feed service couldn't be started, please report this error to the radarplane forum or discord."
     echo "Try an copy as much of the output above and include it in your report, thank you!"
     echo "---------------------------------"
     exit 1
 }
 
 echo 96
-[[ "${MLAT_DISABLED}" == "1" ]] || systemctl is-active adsbexchange-mlat &>/dev/null || {
+[[ "${MLAT_DISABLED}" == "1" ]] || systemctl is-active radarplane-mlat &>/dev/null || {
     rm -f $IPATH/mlat_version
     echo "---------------------------------"
-    journalctl -u adsbexchange-mlat | tail -n10
+    journalctl -u radarplane-mlat | tail -n10
     echo "---------------------------------"
-    echo "adsbexchange-mlat service couldn't be started, please report this error to the adsbexchange forum or discord."
+    echo "radarplane-mlat service couldn't be started, please report this error to the radarplane forum or discord."
     echo "Try an copy as much of the output above and include it in your report, thank you!"
     echo "---------------------------------"
     exit 1
 }
 
 # Remove old method of starting the feed scripts if present from rc.local
-# Kill the old adsbexchange scripts in case they are still running from a previous install including spawned programs
-for name in adsbexchange-netcat_maint.sh adsbexchange-socat_maint.sh adsbexchange-mlat_maint.sh; do
+# Kill the old radarplane scripts in case they are still running from a previous install including spawned programs
+for name in radarplane-netcat_maint.sh radarplane-socat_maint.sh radarplane-mlat_maint.sh; do
     if grep -qs -e "$name" /etc/rc.local; then
         sed -i -e "/$name/d" /etc/rc.local || true
     fi
@@ -363,13 +351,13 @@ for name in adsbexchange-netcat_maint.sh adsbexchange-socat_maint.sh adsbexchang
     fi
 done
 
-# in case the mlat-client service using /etc/default/mlat-client as config is using adsbexchange as a host, disable the service
-if grep -qs 'SERVER_HOSTPORT.*feed.adsbexchange.com' /etc/default/mlat-client &>/dev/null; then
+# in case the mlat-client service using /etc/default/mlat-client as config is using radarplane as a host, disable the service
+if grep -qs 'SERVER_HOSTPORT.*feed.radarplane.com' /etc/default/mlat-client &>/dev/null; then
     systemctl disable --now mlat-client >> $LOGFILE 2>&1 || true
 fi
 
-if [[ -f /etc/default/adsbexchange ]]; then
-    sed -i -e 's/feed.adsbexchange.com,30004,beast_reduce_out,feed.adsbexchange.com,64004/feed1.adsbexchange.com,30004,beast_reduce_out,feed2.adsbexchange.com,64004/' /etc/default/adsbexchange || true
+if [[ -f /etc/default/radarplane ]]; then
+    sed -i -e 's/feed.radarplane.com,30001,beast_reduce_out/feed.radarplane.com,30001,beast_reduce_out/' /etc/default/radarplane || true
 fi
 
 
@@ -380,19 +368,18 @@ echo "---------------------"
 ## SETUP COMPLETE
 
 ENDTEXT="
-Thanks for choosing to share your data with ADS-B Exchange!
+Thanks for choosing to share your data with RadarPlane!
 
 If you're curious, check your feed status after 5 min:
 
-https://adsbexchange.com/myip/
-http://adsbx.org/sync
+https://radarplane.com/feed
+
 
 Question? Issues? Go here:
-https://www.adsbexchange.com/forum/threads/adsbexchange-setup-scripts.631609/
-https://discord.gg/n9dGbkTtZm
+TODO
 
 Webinterface to show the data transmitted? Run this command:
-sudo bash /usr/local/share/adsbexchange/git/install-or-update-interface.sh
+sudo bash /usr/local/share/radarplane/git/install-or-update-interface.sh
 "
 
 INPUT_IP=$(echo $INPUT | cut -d: -f1)
@@ -408,7 +395,7 @@ https://github.com/adsbxchange/wiki/wiki/Datasource-other-device
 if [ -f /etc/fr24feed.ini ] || [ -f /etc/rb24.ini ]; then
     ENDTEXT2+="
 It looks like you are running FR24 or RB24
-This means you will need to install a stand-alone decoder so data are avaible on port 30005!
+This means you will need to install a stand-alone decoder so data is avaible on port 30005!
 
 If you have the SDR connected to this device, we recommend using this script to install and configure a stand-alone decoder:
 

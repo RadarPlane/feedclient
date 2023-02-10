@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-REPO="https://github.com/adsbexchange/feedclient.git"
+REPO="https://git.facha.dev/radarplane.com/feedclient.git"
 BRANCH="master"
-IPATH=/usr/local/share/adsbexchange
+IPATH=/usr/local/share/radarplane
 mkdir -p $IPATH
 
 if [ "$(id -u)" != "0" ]; then

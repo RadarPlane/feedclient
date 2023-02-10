@@ -1,11 +1,6 @@
 #!/bin/bash
 
-if grep -qs -e 'LATITUDE' /boot/adsb-config.txt &>/dev/null && [[ -f /boot/adsbx-env ]]; then
-    source /boot/adsb-config.txt
-    source /boot/adsbx-env
-else
-    source /etc/default/adsbexchange
-fi
+source /etc/default/radarplane
 
 if [[ "$LATITUDE" == 0 ]] || [[ "$LONGITUDE" == 0 ]] || [[ "$USER" == 0 ]] || [[ "$USER" == "disable" ]]; then
     echo MLAT DISABLED
@@ -23,7 +18,7 @@ while ! nc -z "$INPUT_IP" "$INPUT_PORT" && command -v nc &>/dev/null; do
     sleep 10
 done
 
-exec /usr/local/share/adsbexchange/venv/bin/mlat-client \
+exec /usr/local/share/radarplane/venv/bin/mlat-client \
     --input-type "$INPUT_TYPE" --no-udp \
     --input-connect "$INPUT" \
     --server "$MLATSERVER" \

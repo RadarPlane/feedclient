@@ -1,14 +1,10 @@
 #!/bin/bash
 
-if [ -f /boot/adsb-config.txt ]; then
-    UUID_FILE="/boot/adsbx-uuid"
-else
-    mkdir -p /usr/local/share/adsbexchange
-    UUID_FILE="/usr/local/share/adsbexchange/adsbx-uuid"
-    # move old file position
-    if [ -f /boot/adsbx-uuid ]; then
-        mv -f /boot/adsbx-uuid $UUID_FILE
-    fi
+mkdir -p /usr/local/share/radarplane
+UUID_FILE="/usr/local/share/radarplane/rp-uuid"
+# move old file position
+if [ -f /boot/rp-uuid ]; then
+    mv -f /boot/rp-uuid $UUID_FILE
 fi
 
 function generateUUID() {

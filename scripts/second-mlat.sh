@@ -1,5 +1,5 @@
 #!/bin/bash
-SERVICE="/lib/systemd/system/adsbexchange-mlat2.service"
+SERVICE="/lib/systemd/system/radarplane-mlat2.service"
 
 if [[ -z ${1} ]]; then
     echo --------------
@@ -9,17 +9,17 @@ fi
 
 cat >"$SERVICE" <<"EOF"
 [Unit]
-Description=adsbexchange-mlat2
+Description=radarplane-mlat2
 Wants=network.target
 After=network.target
 
 [Service]
-User=adsbexchange
-EnvironmentFile=/etc/default/adsbexchange
-ExecStart=/usr/local/share/adsbexchange/venv/bin/mlat-client \
+User=radarplane
+EnvironmentFile=/etc/default/radarplane
+ExecStart=/usr/local/share/radarplane/venv/bin/mlat-client \
     --input-type $INPUT_TYPE --no-udp \
     --input-connect $INPUT \
-    --server feed.adsbexchange.com:SERVERPORT \
+    --server feed.radarplane.com:SERVERPORT \
     --user $USER \
     --lat $LATITUDE \
     --lon $LONGITUDE \
@@ -32,21 +32,17 @@ Restart=always
 RestartSec=30
 StartLimitInterval=1
 StartLimitBurst=100
-SyslogIdentifier=adsbexchange-mlat2
+SyslogIdentifier=radarplane-mlat2
 Nice=-1
 
 [Install]
 WantedBy=default.target
 EOF
 
-if [[ -f /boot/adsb-config.txt ]]; then
-    sed -i -e 's#EnvironmentFile.*#EnvironmentFile=/boot/adsbx-env\nEnvironmentFile=/boot/adsb-config.txt#' "$SERVICE"
-fi
-
 sed -i -e "s/SERVERPORT/${1}/" "$SERVICE"
 if [[ -n ${2} ]]; then
     sed -i -e "s/\$RESULTS/${2}/" "$SERVICE"
 fi
 
-systemctl enable adsbexchange-mlat2
-systemctl restart adsbexchange-mlat2
+systemctl enable radarplane-mlat2
+systemctl restart radarplane-mlat2
