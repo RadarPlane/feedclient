@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #####################################################################################
-#                        ADS-B EXCHANGE SETUP SCRIPT                                #
+#                        RADARPLANE.COM SETUP SCRIPT                                #
 #####################################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                                                                   #
@@ -137,8 +137,8 @@ RESULTS4="--results beast,connect,127.0.0.1:30154"
 PRIVACY=""
 INPUT_TYPE="$INPUT_TYPE"
 
-MLATSERVER="feed.test.radarplane.com:31090"
-TARGET="--net-connector feed.test.radarplane.com,30001,beast_reduce_out"
+MLATSERVER="feed.radarplane.com:31090"
+TARGET="--net-connector feed.radarplane.com,30001,beast_reduce_out"
 NET_OPTIONS="--net-heartbeat 60 --net-ro-size 1280 --net-ro-interval 0.2 --net-ro-port 0 --net-sbs-port 0 --net-bi-port 30154 --net-bo-port 0 --net-ri-port 0 --write-json-every 1"
 JSON_OPTIONS="--max-range 450 --json-location-accuracy 2 --range-outline-hours 24"
 EOF

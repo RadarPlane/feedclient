@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #####################################################################################
-#                        ADS-B EXCHANGE SETUP SCRIPT                                #
+#                        RADARPLANE.COM SETUP SCRIPT                                #
 #####################################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                                                                   #
@@ -137,9 +137,6 @@ else
     MLAT_DISABLED=0
 fi
 
-# remove previously used folder to avoid confusion
-#rm -rf /usr/local/share/adsb-exchange &>/dev/null
-
 cp "$GIT/uninstall.sh" "$IPATH"
 cp "$GIT"/scripts/*.sh "$IPATH"
 
@@ -175,7 +172,7 @@ then
     rm -rf "$VENV"
 fi
 
-MLAT_REPO="https://github.com/adsbxchange/mlat-client.git" # TODO?
+MLAT_REPO="https://git.facha.dev/radarplane.com/mlat-client.git" # TODO?
 MLAT_BRANCH="master"
 MLAT_VERSION="$(git ls-remote $MLAT_REPO $MLAT_BRANCH | cut -f1 || echo $RANDOM-$RANDOM )"
 if [[ $REINSTALL != yes ]] && grep -e "$MLAT_VERSION" -qs $IPATH/mlat_version \
@@ -243,9 +240,9 @@ else
         systemctl disable radarplane-mlat || true
         systemctl stop radarplane-mlat || true
     else
-        # Enable adsbexchange-mlat service
+        # Enable radarplane-mlat service
         systemctl enable radarplane-mlat >> $LOGFILE || true
-        # Start or restart adsbexchange-mlat service
+        # Start or restart radarplane-mlat service
         systemctl restart radarplane-mlat || true
     fi
 fi
@@ -254,7 +251,7 @@ echo 70
 
 # SETUP FEEDER TO SEND DUMP1090 DATA TO ADS-B EXCHANGE
 
-READSB_REPO="https://github.com/adsbxchange/readsb.git"
+READSB_REPO="https://git.facha.dev/radarplane.com/readsb.git"
 READSB_BRANCH="master"
 if grep -E 'wheezy|jessie' /etc/os-release -qs; then
     READSB_BRANCH="jessie"
@@ -389,7 +386,7 @@ ENDTEXT2="
 ---------------------
 No data available from IP $INPUT_IP on port $INPUT_PORT!
 ---------------------
-If your data source is another device / receiver, see the advice here:
+If your data source is another device / receiver, see the advice here: TODO
 https://github.com/adsbxchange/wiki/wiki/Datasource-other-device
 "
 if [ -f /etc/fr24feed.ini ] || [ -f /etc/rb24.ini ]; then
