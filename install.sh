@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REPO="https://git.facha.dev/radarplane.com/feedclient.git"
+REPO="https://github.com/RadarPlane/feedclient.git"
 BRANCH="master"
 IPATH=/usr/local/share/radarplane
 mkdir -p $IPATH
