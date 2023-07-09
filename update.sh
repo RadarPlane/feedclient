@@ -172,7 +172,7 @@ then
     rm -rf "$VENV"
 fi
 
-MLAT_REPO="https://git.facha.dev/radarplane.com/mlat-client.git" # TODO?
+MLAT_REPO="https://github.com/RadarPlane/feedclient.git" # TODO?
 MLAT_BRANCH="master"
 MLAT_VERSION="$(git ls-remote $MLAT_REPO $MLAT_BRANCH | cut -f1 || echo $RANDOM-$RANDOM )"
 if [[ $REINSTALL != yes ]] && grep -e "$MLAT_VERSION" -qs $IPATH/mlat_version \
@@ -251,7 +251,7 @@ echo 70
 
 # SETUP FEEDER TO SEND DUMP1090 DATA TO ADS-B EXCHANGE
 
-READSB_REPO="https://git.facha.dev/radarplane.com/readsb.git"
+READSB_REPO="https://github.com/RadarPlane/feedclient.git"
 READSB_BRANCH="master"
 if grep -E 'wheezy|jessie' /etc/os-release -qs; then
     READSB_BRANCH="jessie"

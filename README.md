@@ -1,17 +1,17 @@
-# ADS-B Exchange feed client
+# RadarPlane.com feed client
 
-- These scripts aid in setting up your current ADS-B receiver to feed ADS-B Exchange.
+- These scripts aid in setting up your current ADS-B receiver to feed RadarPlaner.com.
 - They will not disrupt any existing feed clients already present
 
 ## 1: Find coordinates / elevation:
 
 <https://www.freemaptools.com/elevation-finder.htm>
 
-## 2: Install the adsbexchange feed client
+## 2: Install the radarplane.com feed client
 
 ```
-curl -L -o /tmp/axfeed.sh https://adsbexchange.com/feed.sh
-sudo bash /tmp/axfeed.sh
+curl -L -o /tmp/rdpfeed.sh https://radarplane.com/feed.sh
+sudo bash /tmp/rdpfeed.sh
 ```
 
 ## 3: Check these two URLs to check if your feed is working
@@ -19,14 +19,6 @@ sudo bash /tmp/axfeed.sh
 - <https://www.adsbexchange.com/myip>
 - <https://map.adsbexchange.com/mlat-map>
 
-## 4: Optional: Install the stats package for an online map that shows only planes received by you:
-
-```
-curl -L -o /tmp/axstats.sh https://adsbexchange.com/stats.sh
-sudo bash /tmp/axstats.sh
-
-adsbexchange-showurl
-```
 
 ### Optional: local interface for your data http://192.168.X.XX/adsbx
 
