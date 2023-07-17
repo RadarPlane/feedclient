@@ -354,7 +354,7 @@ if grep -qs 'SERVER_HOSTPORT.*feed.radarplane.com' /etc/default/mlat-client &>/d
 fi
 
 if [[ -f /etc/default/radarplane ]]; then
-    sed -i -e 's/feed.radarplane.com,30001,beast_reduce_plus_out/feed.radarplane.com,30001,beast_reduce_plus_out/' /etc/default/radarplane || true
+    sed -i -e 's/feed.radarplane.com,30001,beast_reduce_out/feed.radarplane.com,30001,beast_reduce_plus_out/' /etc/default/radarplane || true
 fi
 
 
